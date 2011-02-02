@@ -52,6 +52,20 @@ REMOTE_TIMEOUT = getattr(settings, 'SENTRY_REMOTE_TIMEOUT', 5)
 
 ADMINS = getattr(settings, 'SENTRY_ADMINS', [])
 
+# Configure notifications for Sentry to send - tuple of dictionaries
+NOTIFICATIONS = getattr(settings, 'SENTRY_NOTIFICATIONS', None)
+# Determine frequency at which you want to receive all notifications
+# override on a per-notification basis if desired
+NOTIFICATION_FREQUENCY = getattr(settings, 'SENTRY_NOTIFICATION_FREQUENCY', 5)
+# Number of errors that can be received over a given timespan before a
+# notification will be sent. Can override on per-notification basis.
+NOTIFICATION_ERROR_THRESHOLD = getattr(settings, 'SENTRY_NOTIFICATION_FREQUENCY', 50)
+# Used to determine whether or not to send a notification. If the number of
+# errors received in NOTIFICATION_TIME_THRESHOLD is greater than or equal
+# to NOTIFICATION_ERROR_THRESHOLD, a notification may be sent. Can
+# override on a per-notification basis
+NOTIFICATION_TIME_THRESHOLD = getattr(settings,'SENTRY_NOTIFICATION_TIME_THRESHOLD', 5)
+
 # TODO: deprecate this
 USE_LOGGING = getattr(settings, 'SENTRY_USE_LOGGING', False)
 
@@ -83,3 +97,4 @@ URL_PREFIX = getattr(settings, 'SENTRY_URL_PREFIX', None)
 
 # Allow access to Sentry without authentication.
 PUBLIC = getattr(settings, 'SENTRY_PUBLIC', False)
+

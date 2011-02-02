@@ -14,6 +14,7 @@ from django.db.models import Count
 from django.db.models.signals import post_syncdb
 from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _
+from django.utils.importlib import import_module
 
 from sentry import conf
 from sentry.helpers import cached_property, construct_checksum, get_db_engine, transform, get_filters
@@ -164,6 +165,34 @@ class GroupedMessage(MessageBase):
         if engine.startswith('mysql'):
             return 'log(times_seen) * 600 + unix_timestamp(last_seen)'
         return 'times_seen'
+
+    def process_notifications(self):
+        """
+        Process user-defined notifications
+        """
+    
+        # If no notifications are defined, return
+        if not conf.NOTIFICATIONS:
+            return
+
+        # Iterate through notifications    
+        for notification in conf.NOTIFICATIONS:
+            # Module and class
+            try:
+                mod_name, klass_name = notification['backend'].rsplit('.', 1)
+                mod = import_module(mod_name)
+            except ImportError, e:
+                raise ImproperlyConfigured(('Error importing notification'
+                        ' backend module %s: %s' % (mod_name, e)))
+
+            try:
+                klass = getattr(mod, klass_name)
+            except AttributeError:
+                raise ImproperlyConfigured(('Module "%s" does not define a '
+                        '"%s" class' % (mod_name, klass_name)))
+
+            # Process notification
+            klass(notification).send_notification()
 
     def mail_admins(self, request=None, fail_silently=True):
         if not conf.ADMINS:

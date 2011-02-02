@@ -105,6 +105,8 @@ class SentryManager(models.Manager):
         else:
             if mail:
                 group.mail_admins()
+            # Process notifications for this error
+            group.process_notifications()
             return instance
 
 class GroupedMessageManager(SentryManager):

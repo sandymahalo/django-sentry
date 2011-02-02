@@ -59,7 +59,7 @@ NOTIFICATIONS = getattr(settings, 'SENTRY_NOTIFICATIONS', None)
 NOTIFICATION_FREQUENCY = getattr(settings, 'SENTRY_NOTIFICATION_FREQUENCY', 5)
 # Number of errors that can be received over a given timespan before a
 # notification will be sent. Can override on per-notification basis.
-NOTIFICATION_ERROR_THRESHOLD = getattr(settings, 'SENTRY_NOTIFICATION_FREQUENCY', 50)
+NOTIFICATION_ERROR_THRESHOLD = getattr(settings, 'SENTRY_NOTIFICATION_ERROR_THRESHOLD', 50)
 # Used to determine whether or not to send a notification. If the number of
 # errors received in NOTIFICATION_TIME_THRESHOLD is greater than or equal
 # to NOTIFICATION_ERROR_THRESHOLD, a notification may be sent. Can

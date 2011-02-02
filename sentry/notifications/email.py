@@ -2,7 +2,8 @@
 import datetime
 
 from django.core.cache import cache
-from django.core.email import send_mail
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from django.conf import settings
 
 from sentry.models import Message
@@ -12,8 +13,8 @@ class Email(NotificationBase):
 
     def send_notification(self):
         #check to see if a notification needs to be sent (memcached)
-        if  _notify():
-            _send_email()
+        if self._notify_check():
+            self._send_email()
 
         return
 
@@ -36,7 +37,7 @@ class Email(NotificationBase):
             datetime__lte=self.time_diff).count()
 
         # If error threshold is hit, send an email.
-        if recent_errors >= self.notification_error_threshold:
+        if self.recent_errors >= self.notification_error_threshold:
             # Set in cache so this notification is not sent again prematurely
             cache.set(cache_key, 'True', self.notification_time_threshold)
             return True
@@ -46,8 +47,7 @@ class Email(NotificationBase):
         Send email notification
         """
 
-        subject = "SENTRY NOTIFICATION: %s errors received in %s minutes" %
-            (self.recent_errors, self.time_diff)
+        subject = "SENTRY NOTIFICATION: %s errors received in %s minutes" % (self.recent_errors, self.time_diff)
 
         body = render_to_string(
                 'sentry/emails/notification.txt', 
@@ -61,6 +61,6 @@ class Email(NotificationBase):
             body,
             settings.SERVER_EMAIL,
             self.recipient,
-            fail_silently=True
+            fail_silently=False
         )
 
